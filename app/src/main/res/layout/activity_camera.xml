@@ -4,14 +4,69 @@
     android:id="@+id/activity_camera"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.jbeleno.centinela.CameraActivity">
+    android:orientation="vertical"
+    android:background="@color/colorPrimaryDark"
+    tools:context="com.jbeleno.photobox.CameraActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width= "@dimen/camera_icon_size"
+            android:layout_height="@dimen/camera_icon_size"
+            android:layout_centerInParent="true"
+            android:background="@drawable/ic_camera"/>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width= "match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:id="@+id/img_preview"/>
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:weightSum="1"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/size_16dp">
+
+        <android.support.v7.widget.AppCompatButton
+            android:layout_marginEnd="@dimen/size_8dp"
+            android:layout_marginRight="@dimen/size_8dp"
+            android:layout_marginStart="@dimen/size_16dp"
+            android:layout_marginLeft="@dimen/size_16dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_secondary"
+            android:text="@string/btn_store"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:padding="@dimen/size_8dp"
+            android:id="@+id/btn_store"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:layout_marginEnd="@dimen/size_16dp"
+            android:layout_marginRight="@dimen/size_16dp"
+            android:layout_marginStart="@dimen/size_8dp"
+            android:layout_marginLeft="@dimen/size_8dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_primary"
+            android:text="@string/btn_send"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:padding="@dimen/size_8dp"
+            android:id="@+id/btn_send"/>
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
 </RelativeLayout>

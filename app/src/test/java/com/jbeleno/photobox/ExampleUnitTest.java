@@ -1,4 +1,4 @@
-package com.jbeleno.centinela;
+package com.jbeleno.photobox;
 
 import org.junit.Test;
 

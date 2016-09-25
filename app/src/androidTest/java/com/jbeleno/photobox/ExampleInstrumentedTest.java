@@ -1,4 +1,4 @@
-package com.jbeleno.centinela;
+package com.jbeleno.photobox;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.jbeleno.centinela", appContext.getPackageName());
+        assertEquals("com.jbeleno.photobox", appContext.getPackageName());
     }
 }
