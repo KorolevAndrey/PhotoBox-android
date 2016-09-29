@@ -20,6 +20,20 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.http.GET;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Part;
 
 
 public class CameraActivity extends AppCompatActivity {
@@ -37,6 +51,13 @@ public class CameraActivity extends AppCompatActivity {
     private AppCompatImageView imgPreview;
     private AppCompatButton btnSend;
     private AppCompatButton btnStore;
+    private Boolean flag = true;
+
+    // Declare variables for web requests
+    private static final String BASE_URL = "http://52.27.16.14/photobox/index.php/";
+    private static final String URL_UPLOAD_PHOTO = "image/upload";
+    private static final String PARAM_IMAGE = "image";
+    private static final String FILE_TYPE_IMAGE = "image/*";
 
 
     @Override
@@ -50,7 +71,7 @@ public class CameraActivity extends AppCompatActivity {
         btnStore = (AppCompatButton) findViewById(R.id.btn_store);
 
         // If the user touch over the camera icon, actives
-        // the camera to take a photo
+        // the camera to take a photo and show the preview
         imgPreview.setOnTouchListener(new View.OnTouchListener()
         {
             @Override
@@ -58,6 +79,17 @@ public class CameraActivity extends AppCompatActivity {
             {
                 dispatchTakePictureIntent(REQUEST_TAKE_PHOTO);
                 return false;
+            }
+        });
+
+
+        // Upload the image to the server
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if(flag) {
+                    flag = false;
+                    uploadPhoto();
+                }
             }
         });
     }
@@ -76,16 +108,13 @@ public class CameraActivity extends AppCompatActivity {
 
         // Ensure that there's a camera activity to handle the intent
         if(actionCode == REQUEST_TAKE_PHOTO){
-            File f = null;
-
             try {
-                f = createImageFile();
+                File f = createImageFile();
                 mCurrentPhotoPath = f.getAbsolutePath();
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
             } catch (IOException e) {
                 Message.show("Error occurred while creating the File", this);
                 e.printStackTrace();
-                f = null;
                 mCurrentPhotoPath = null;
             }
         }
@@ -164,7 +193,7 @@ public class CameraActivity extends AppCompatActivity {
         if (mCurrentPhotoPath != null) {
             setPic();
             galleryAddPic();
-            mCurrentPhotoPath = null;
+            //mCurrentPhotoPath = null;
         }
 
     }
@@ -172,8 +201,8 @@ public class CameraActivity extends AppCompatActivity {
 
     private void setPic() {
 
-		/* There isn't enough memory to open up more than a couple camera photos */
-		/* So pre-scale the target bitmap into which the file is decoded */
+        /* There isn't enough memory to open up more than a couple camera photos */
+        /* So pre-scale the target bitmap into which the file is decoded */
 
         // Get the dimensions of the View
         int targetW = imgPreview.getWidth();
@@ -205,5 +234,66 @@ public class CameraActivity extends AppCompatActivity {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             handleBigCameraPhoto();
         }
+    }
+
+
+    public void uploadPhoto(){
+
+        /**
+         * Using sismicapp interface and a multipart form data, the local photo
+         * is uploaded in the server.
+         * */
+
+        if(mCurrentPhotoPath != null) {
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .build();
+
+            SismicappService service = retrofit.create(SismicappService.class);
+
+            File file = new File(mCurrentPhotoPath);
+
+            RequestBody reqFile = RequestBody.create(MediaType.parse(FILE_TYPE_IMAGE), file);
+            MultipartBody.Part body = MultipartBody.Part.createFormData(PARAM_IMAGE, file.getName(), reqFile);
+
+            Call<ResponseBody> call = service.uploadPhoto(body);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    try{
+                    Log.d("Sismicapp Network Error", response.body().string());
+                    }catch (IOException e){
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+
+            // After sending the image to the server release the memory with the file
+            mCurrentPhotoPath = null;
+
+            Message.show("The image was uploaded with success :)", this);
+        }else{
+            Message.show("Stop man, you already upload this image", this);
+        }
+
+        // Now you can use the buttons again
+        flag = true;
+    }
+
+
+    /**
+     * This is a public interface to upload the photo to the server using Retrofit 2.0
+     * and okhttp3
+     */
+    public interface SismicappService {
+        @Multipart
+        @POST(URL_UPLOAD_PHOTO)
+        Call<ResponseBody> uploadPhoto(@Part MultipartBody.Part file);
     }
 }
